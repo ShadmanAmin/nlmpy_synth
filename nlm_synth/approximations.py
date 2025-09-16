@@ -74,7 +74,54 @@ def _objective(target_ps, target_mi, cand_ps, cand_mi, w_spec=1.0, w_moran=0.3):
     mi_err = np.abs((target_mi if np.isfinite(target_mi) else 0.0) -
                     (cand_mi   if np.isfinite(cand_mi)   else 0.0))
     return w_spec * spec_err + w_moran * mi_err
+def _perlin_safe(r, c, *, periods, octaves, lacunarity, persistence, seed):
+    """
+    Generate a Perlin field of shape (r, c). If NLMPy requires LCM-compatible
+    sizes, pad up to the nearest valid size, generate, then crop back.
+    """
+    # force required dtypes
+    pr, pc = int(periods[0]), int(periods[1])
+    octaves = int(octaves)
+    lacunarity = int(lacunarity)
+    persistence = float(persistence)
 
+    # First try the requested size
+    try:
+        return perlin_field(r, c,
+                            periods=(pr, pc),
+                            octaves=octaves,
+                            lacunarity=lacunarity,
+                            persistence=persistence,
+                            seed=seed)
+    except Exception:
+        # Compute a safe pad using LCM of periods (common requirement in NLMPy)
+        # Pad each dimension to the next multiple of the LCM.
+        try:
+            lcm = int(np.lcm(pr, pc))
+            r2 = int(np.ceil(r / lcm) * lcm)
+            c2 = int(np.ceil(c / lcm) * lcm)
+            # Never pad to 0; guarantee at least original size
+            r2 = max(r2, r)
+            c2 = max(c2, c)
+        except Exception:
+            # Fallback: pad by one period if LCM goes sideways
+            r2 = r + pr
+            c2 = c + pc
+
+        # As a last resort, make square if NLMPy build requires it
+        # (some builds behave more happily with square dims)
+        # Keep this commented unless you still see errors:
+        # s2 = max(r2, c2)
+        # r2, c2 = s2, s2
+
+        field_big = perlin_field(r2, c2,
+                                 periods=(pr, pc),
+                                 octaves=octaves,
+                                 lacunarity=lacunarity,
+                                 persistence=persistence,
+                                 seed=seed)
+        # Crop back to target window (top-left crop is fine for stats)
+        return field_big[:r, :c]
 # ============================================================
 # Core fitting (array in, params out)
 # ============================================================
