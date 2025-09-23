@@ -162,7 +162,48 @@ def _max_periods_multiple(periods_grid, octaves_grid, lacunarity_grid):
                 max_mult = int(np.lcm(max_mult, mult)) if mult > 0 else max_mult
     # guard
     return max(1, max_mult)
+def _combo_multiple(periods, octaves, lacunarity):
+    """Per-combo LCM multiple NLMPy expects."""
+    pr, pc = int(periods[0]), int(periods[1])
+    o = int(octaves)
+    L = int(lacunarity)
+    rP = pr * (L ** max(o-1, 0))
+    cP = pc * (L ** max(o-1, 0))
+    try:
+        return int(np.lcm(rP, cP))
+    except Exception:
+        return max(rP, cP)
 
+def _generate_perlin_combo_aligned(side, periods, octaves, lacunarity, persistence, seed):
+    """
+    Generate a Perlin field for a square 'side' by first rounding 'side' UP
+    to the nearest multiple required by this specific (p,o,L) combo, then crop back.
+    Retries by adding one more multiple if NLMPy still complains.
+    """
+    m = max(1, _combo_multiple(periods, octaves, lacunarity))
+    dim = int(np.ceil(side / m) * m)
+
+    # retry a couple times if some builds still balk at a borderline dim
+    for _ in range(3):
+        try:
+            big = perlin_field(dim, dim,
+                               periods=(int(periods[0]), int(periods[1])),
+                               octaves=int(octaves),
+                               lacunarity=int(lacunarity),
+                               persistence=float(persistence),
+                               seed=seed)
+            return big[:side, :side]
+        except Exception:
+            dim += m  # go to the next safe multiple
+
+    # last resort: try requested side (may work if fallbacks exist)
+    big = perlin_field(side, side,
+                       periods=(int(periods[0]), int(periods[1])),
+                       octaves=int(octaves),
+                       lacunarity=int(lacunarity),
+                       persistence=float(persistence),
+                       seed=seed)
+    return big[:side, :side]
 
 def square_crop_dataarray(
     da2d: xr.DataArray,
@@ -255,9 +296,12 @@ def fit_perlin_parameters_array(
             for L in lacunarity_grid:
                 L = int(L)
                 for P in persistence_grid:
+                    if verbose:
+                        print(f"[fit] Trying p={p}, o={o}, L={L}, P={P} ...", end=' ')
                     P = float(P)
 
-                    fld = perlin_field(r, c, periods=p, octaves=o, lacunarity=L, persistence=P, seed=seed)
+                    fld = _generate_perlin_combo_aligned(
+                    side=r,periods=p, octaves=o, lacunarity=L, persistence=P, seed=seed)
 
                     fld_rank = _rank01(fld)
                     fld_field = _zscore(fld_rank)
