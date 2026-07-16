@@ -45,7 +45,7 @@ def _radial_power_spectrum(arr, n_bins=60):
     P  = np.abs(X)**2
 
     r, c = arr.shape
-    cy, cx = (r//2, c//2)
+    cy , cx = (r//2, c//2)
     yy, xx = np.indices((r, c))
     rr = np.sqrt((yy - cy)**2 + (xx - cx)**2)
 
