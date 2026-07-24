@@ -1,0 +1,58 @@
+cff-version: 1.2.0
+title: >-
+  nlm_synth: neutral landscape models with prescribed marginal
+  distributions
+message: >-
+  If you use this software, please cite it using the metadata
+  from this file, along with the NLMpy references below.
+type: software
+authors:
+  - family-names: Amin
+    given-names: Shadman
+repository-code: "https://github.com/ShadmanAmin/nlmpy_synth"
+abstract: >-
+  A Python package for generating synthetic rasters that combine a
+  controlled amount of spatial structure, drawn from a neutral
+  landscape model, with an observed value distribution supplied by
+  the user. Because spatial structure and the marginal distribution
+  are varied independently, the package can isolate how landscape
+  heterogeneity statistics such as Moran's I and variance respond to
+  changes in observation scale.
+keywords:
+  - neutral landscape model
+  - Perlin noise
+  - remote sensing
+  - NDVI
+  - spatial heterogeneity
+  - scaling
+license: MIT
+version: 0.2.0
+references:
+  - type: article
+    authors:
+      - family-names: Etherington
+        given-names: Thomas R.
+      - family-names: Holland
+        given-names: E. Penelope
+      - family-names: O'Sullivan
+        given-names: David
+    title: >-
+      NLMpy: a Python software package for the creation of
+      neutral landscape models within a general numerical framework
+    journal: Methods in Ecology and Evolution
+    year: 2015
+    volume: 6
+    start: 164
+    end: 168
+    doi: 10.1111/2041-210X.12308
+  - type: article
+    authors:
+      - family-names: Etherington
+        given-names: Thomas R.
+    title: Perlin noise as a hierarchical neutral landscape model
+    journal: Web Ecology
+    year: 2022
+    volume: 22
+    start: 1
+    end: 6
+    doi: 10.5194/we-22-1-2022

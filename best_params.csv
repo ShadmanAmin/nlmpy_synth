@@ -1,2 +1,0 @@
-input_tif,periods_r,periods_c,octaves,lacunarity,persistence,score,target_moran,candidate_moran,n_rows,n_cols,band
-test_tf.tif,4,4,6,4,0.9,0.0028985797330727935,0.9693719870053966,0.9631816783546102,4096,4096,1

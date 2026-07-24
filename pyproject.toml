@@ -1,0 +1,90 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nlm-synth"
+version = "0.2.0"
+description = "Neutral landscape models with prescribed marginal distributions, for studying the scale dependence of landscape heterogeneity"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Shadman Amin" }]
+keywords = [
+    "neutral landscape model",
+    "perlin noise",
+    "remote sensing",
+    "NDVI",
+    "spatial heterogeneity",
+    "scaling",
+    "geospatial",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+]
+dependencies = [
+    "numpy>=1.22",
+    "pandas>=1.5",
+    "matplotlib>=3.5",
+    "nlmpy>=1.0",
+]
+
+[project.optional-dependencies]
+geo = [
+    "xarray>=2023.1",
+    "rioxarray>=0.13",
+    "rasterio>=1.3",
+    "affine>=2.3",
+]
+fit = [
+    "scipy>=1.15",
+    "scikit-learn>=1.2",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.4",
+]
+all = [
+    "nlm-synth[geo,fit,dev]",
+]
+
+[project.scripts]
+nlm-synth = "nlm_synth.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/ShadmanAmin/nlmpy_synth"
+Repository = "https://github.com/ShadmanAmin/nlmpy_synth"
+Issues = "https://github.com/ShadmanAmin/nlmpy_synth/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = [
+    "error::DeprecationWarning:nlm_synth.*",
+    # nlmpy 1.2 still imports scipy.ndimage.measurements; nothing we can fix here.
+    "ignore:Please import `label` from the `scipy.ndimage` namespace:DeprecationWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "W"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"examples/*" = ["E402"]
